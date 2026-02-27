@@ -19,7 +19,6 @@
             --text-muted: #94a3b8;
             --accent: #38bdf8;
             --accent-hover: #0ea5e9;
-            --error: #ef4444;
         }
 
         body {
@@ -31,7 +30,7 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            overflow-x: hidden;
+            overflow: hidden;
         }
 
         #hero-canvas {
@@ -44,73 +43,73 @@
 
         .contact-card {
             background: var(--card-bg);
-            padding: 2rem;
-            border-radius: 12px;
-            width: 100%;
+            padding: 2.5rem;
+            border-radius: 16px;
+            width: 90%;
             max-width: 450px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             border: 1px solid rgba(255, 255, 255, 0.1);
             position: relative;
             z-index: 10;
+            backdrop-filter: blur(10px);
         }
 
-        h2 { font-size: 1.8rem; margin-bottom: 0.5rem; color: var(--accent); text-align: center; }
-        p { color: var(--text-muted); margin-bottom: 2rem; font-size: 0.95rem; text-align: center; }
+        h2 { font-size: 1.5rem; margin-bottom: 0.5rem; color: var(--accent); text-align: center; letter-spacing: 1px; }
+        p { color: var(--text-muted); margin-bottom: 2rem; font-size: 0.9rem; text-align: center; }
 
-        .input-group { margin-bottom: 1.2rem; position: relative; }
+        .input-group { margin-bottom: 1.2rem; }
 
         label {
             display: block;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             margin-bottom: 0.5rem;
             color: var(--text-main);
-            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         input, textarea {
             width: 100%;
             padding: 12px;
-            background: #0f172a;
-            border: 1.5px solid #334155;
-            border-radius: 6px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid #334155;
+            border-radius: 8px;
             color: white;
             font-size: 1rem;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
             box-sizing: border-box;
         }
 
         input:focus, textarea:focus {
             outline: none;
             border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
         }
 
-        textarea { height: 120px; resize: none; }
+        textarea { height: 100px; resize: none; }
 
         button {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             background: var(--accent);
             color: #0f172a;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             font-weight: 700;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: transform 0.2s, background 0.2s;
             margin-top: 1rem;
         }
 
-        button:hover { background: var(--accent-hover); }
-        
-        button:disabled {
-            background: #64748b;
-            cursor: not-allowed;
-        }
+        button:hover { background: var(--accent-hover); transform: translateY(-2px); }
+        button:active { transform: translateY(0); }
+        button:disabled { background: #475569; cursor: not-allowed; transform: none; }
 
         .status {
-            margin-top: 1rem;
+            margin-top: 1.5rem;
             text-align: center;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
+            font-weight: 500;
             min-height: 1.2rem;
         }
     </style>
@@ -119,24 +118,24 @@
 
 <canvas id="hero-canvas"></canvas>
 
-<div class="contact-card reveal">
-    <h2>WELCOME TO VARSHA'S PORTFOLIO</h2>
-    <p>ALWAYS IN TOUCH🦅.</p>
+<div class="contact-card">
+    <h2>VARSHA'S PORTFOLIO</h2>
+    <p>Let's build something amazing together 🦅</p>
 
     <form id="portfolioForm">
         <div class="input-group">
             <label for="name">Name</label>
-            <input type="text" id="name" placeholder="VARSHA" required>
+            <input type="text" id="name" placeholder="Your Name" required>
         </div>
 
         <div class="input-group">
             <label for="email">Email</label>
-            <input type="email" id="email" placeholder="VARSHA@example.com" required>
+            <input type="email" id="email" placeholder="email@example.com" required>
         </div>
 
         <div class="input-group">
             <label for="message">Message</label>
-            <textarea id="message" placeholder="Tell me about your PARTY" required></textarea>
+            <textarea id="message" placeholder="Tell me about your project..." required></textarea>
         </div>
 
         <button type="submit" id="submitBtn">Send Message</button>
@@ -145,80 +144,99 @@
 </div>
 
 <script>
-    // Supabase Initialization
+    // 1. Supabase Config (Check that your table name is exactly "feedback")
     const supabaseUrl = "https://erdogrbrxzemikhuyrud.supabase.co";
     const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVyZG9ncmJyeHplbWlraHV5cnVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxNjc5NjIsImV4cCI6MjA4Nzc0Mzk2Mn0.2Nt8CKiZ9xcO7gcec6hiBHEmtd2A8z6i_WJZOziWjiY";
     const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-    // Feedback Form Handler
-    document.getElementById("portfolioForm").addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const status = document.getElementById("status");
-        const submitButton = document.getElementById("submitBtn");
-        
-        status.innerText = "Submitting...";
-        status.style.color = "#fff";
-        submitButton.disabled = true;
+    // 2. Form Submission Logic
+    const feedbackForm = document.getElementById("portfolioForm");
+    const statusText = document.getElementById("status");
+    const submitBtn = document.getElementById("submitBtn");
 
-        const name = document.getElementById("name").value.trim();
-        const email = document.getElementById("email").value.trim();
-        const message = document.getElementById("message").value.trim();
+    feedbackForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        
+        // UI Reset
+        statusText.innerText = "Sending...";
+        statusText.style.color = "var(--accent)";
+        submitBtn.disabled = true;
+
+        const formData = {
+            name: document.getElementById("name").value.trim(),
+            email: document.getElementById("email").value.trim(),
+            message: document.getElementById("message").value.trim()
+        };
 
         try {
-            const { data, error } = await supabaseClient
+            // Rectified Insert: Added .select() to ensure we get a response back
+            const { error } = await supabaseClient
                 .from("feedback")
-                .insert([{ name, email, message }]);
+                .insert([formData]);
 
-            if (error) {
-                status.innerText = `❌ Error: ${error.message}`;
-                status.style.color = "#ff4444";
-            } else {
-                status.innerText = "✅ Feedback submitted successfully!";
-                status.style.color = "#00ffd5";
-                e.target.reset();
-                setTimeout(() => { status.innerText = ""; }, 5000);
-            }
+            if (error) throw error;
+
+            // Success
+            statusText.innerText = "✅ Message sent! I'll get back to you soon.";
+            statusText.style.color = "#4ade80";
+            feedbackForm.reset();
+
         } catch (err) {
-            status.innerText = "❌ Connection error. Please try again.";
-            status.style.color = "#ff4444";
+            console.error("Supabase Error:", err);
+            statusText.innerText = "❌ Error: " + (err.message || "Failed to connect.");
+            statusText.style.color = "#f87171";
         } finally {
-            submitButton.disabled = false;
+            submitBtn.disabled = false;
+            // Clear status after 5 seconds
+            setTimeout(() => { statusText.innerText = ""; }, 5000);
         }
     });
 
-    // 3D Background Logic
+    // 3. Three.js Animated Background
     const init3D = () => {
         const canvas = document.querySelector('#hero-canvas');
-        if (!canvas) return;
-
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+        
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
         const particlesGeometry = new THREE.BufferGeometry();
-        const count = 3500;
+        const count = 2000;
         const positions = new Float32Array(count * 3);
-        for(let i = 0; i < count * 3; i++) { positions[i] = (Math.random() - 0.5) * 12; }
-        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+        for(let i = 0; i < count * 3; i++) {
+            positions[i] = (Math.random() - 0.5) * 10;
+        }
         
-        const particlesMaterial = new THREE.PointsMaterial({ size: 0.012, color: 0x38bdf8, transparent: true, opacity: 0.7 });
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        const particlesMaterial = new THREE.PointsMaterial({ 
+            size: 0.015, 
+            color: 0x38bdf8, 
+            transparent: true, 
+            opacity: 0.6 
+        });
+
         const particles = new THREE.Points(particlesGeometry, particlesMaterial);
         scene.add(particles);
-        camera.position.z = 4;
+        camera.position.z = 3;
 
         let mouseX = 0, mouseY = 0;
-        document.addEventListener('mousemove', (e) => {
+        window.addEventListener('mousemove', (e) => {
             mouseX = (e.clientX / window.innerWidth) - 0.5;
             mouseY = (e.clientY / window.innerHeight) - 0.5;
         });
 
         const animate = () => {
             requestAnimationFrame(animate);
-            particles.rotation.y += 0.001;
-            particles.position.x += (mouseX * 0.4 - particles.position.x) * 0.05;
-            particles.position.y += (-mouseY * 0.4 - particles.position.y) * 0.05;
+            particles.rotation.y += 0.0005;
+            particles.rotation.x += 0.0002;
+            
+            // Smooth mouse follow
+            particles.position.x += (mouseX * 0.5 - particles.position.x) * 0.02;
+            particles.position.y += (-mouseY * 0.5 - particles.position.y) * 0.02;
+
             renderer.render(scene, camera);
         };
         animate();
@@ -230,22 +248,17 @@
         });
     };
 
-    // Scroll and UI Logic
-    const initLogic = () => {
-        gsap.registerPlugin(ScrollTrigger);
-        gsap.utils.toArray('.reveal').forEach(elem => {
-            gsap.fromTo(elem, { opacity: 0, y: 30 }, { 
-                opacity: 1, y: 0, duration: 1, ease: "power2.out",
-                scrollTrigger: { trigger: elem, start: "top 85%" }
-            });
-        });
-    };
-
-    window.onload = () => {
+    // 4. Initialization
+    window.addEventListener('DOMContentLoaded', () => {
         init3D();
-        initLogic();
-    };
+        // GSAP Fade-in
+        gsap.from(".contact-card", {
+            opacity: 0,
+            y: 50,
+            duration: 1.2,
+            ease: "power4.out"
+        });
+    });
 </script>
 </body>
 </html>
-
