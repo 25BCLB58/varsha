@@ -148,7 +148,14 @@
     const supabaseUrl = "https://erdogrbrxzemikhuyrud.supabase.co";
     const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVyZG9ncmJyeHplbWlraHV5cnVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxNjc5NjIsImV4cCI6MjA4Nzc0Mzk2Mn0.2Nt8CKiZ9xcO7gcec6hiBHEmtd2A8z6i_WJZOziWjiY";
     const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
-
+(async () => {
+    const { data, error } = await supabaseClient.from('feedback').select('id').limit(1);
+    if (error) {
+        console.error("Supabase Connection Test Failed:", error.message);
+    } else {
+        console.log("Supabase Connection Test Successful!");
+    }
+})();
     // 2. Form Submission Logic
     const feedbackForm = document.getElementById("portfolioForm");
     const statusText = document.getElementById("status");
@@ -262,3 +269,4 @@
 </script>
 </body>
 </html>
+
