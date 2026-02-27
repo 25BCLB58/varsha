@@ -170,4 +170,122 @@
 <script>
     // 1. Supabase Config
     const supabaseUrl = "https://erdogrbrxzemikhuyrud.supabase.co";
-    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVyZG9ncmJyeHplbWlraHV5cnVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxNjc5NjIsImV4cCI6MjA4Nzc0M
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVyZG9ncmJyeHplbWlraHV5cnVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxNjc5NjIsImV4cCI6MjA4Nzc0Mzk2Mn0.2Nt8CKiZ9xcO7gcec6hiBHEmtd2A8z6i_WJZOziWjiY";
+    const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+    // 2. Form Handling Logic
+    const form = document.getElementById("portfolioForm");
+    const status = document.getElementById("status");
+    const submitButton = document.getElementById("submitBtn");
+
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        
+        // UI Reset
+        status.innerText = "Transmitting...";
+        status.style.color = "var(--accent)";
+        submitButton.disabled = true;
+
+        const formData = {
+            name: document.getElementById("name").value.trim(),
+            email: document.getElementById("email").value.trim(),
+            message: document.getElementById("message").value.trim()
+        };
+
+        try {
+            // Note: Ensure your Supabase table 'feedback' has columns: name, email, message
+            const { error } = await supabaseClient
+                .from("feedback")
+                .insert([formData]);
+
+            if (error) throw error;
+
+            status.innerText = "Success! I'll get back to you soon.";
+            status.style.color = "var(--accent)";
+            form.reset();
+            
+            setTimeout(() => { status.innerText = ""; }, 5000);
+
+        } catch (err) {
+            console.error("Supabase Error:", err);
+            status.innerText = "Error: Could not send message.";
+            status.style.color = "var(--error)";
+        } finally {
+            submitButton.disabled = false;
+        }
+    });
+
+    // 3. 3D Background (Three.js)
+    const init3D = () => {
+        const canvas = document.querySelector('#hero-canvas');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+        
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        const particlesGeometry = new THREE.BufferGeometry();
+        const count = 1800; 
+        const positions = new Float32Array(count * 3);
+
+        for(let i = 0; i < count * 3; i++) {
+            positions[i] = (Math.random() - 0.5) * 12;
+        }
+        
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        
+        const particlesMaterial = new THREE.PointsMaterial({ 
+            size: 0.02, 
+            color: 0x2dd4bf, 
+            transparent: true, 
+            opacity: 0.5,
+            blending: THREE.AdditiveBlending 
+        });
+
+        const particles = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particles);
+        camera.position.z = 4;
+
+        let mouseX = 0, mouseY = 0;
+        window.addEventListener('mousemove', (e) => {
+            mouseX = (e.clientX / window.innerWidth) - 0.5;
+            mouseY = (e.clientY / window.innerHeight) - 0.5;
+        });
+
+        const animate = () => {
+            requestAnimationFrame(animate);
+            particles.rotation.y += 0.001;
+            particles.rotation.x += 0.0005;
+            // Smooth Parallax
+            particles.position.x += (mouseX * 0.5 - particles.position.x) * 0.05;
+            particles.position.y += (-mouseY * 0.5 - particles.position.y) * 0.05;
+            renderer.render(scene, camera);
+        };
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    };
+
+    // 4. Entrance Animation
+    const initAnimations = () => {
+        gsap.from(".contact-card", {
+            duration: 1.5,
+            y: 30,
+            opacity: 0,
+            ease: "expo.out",
+            delay: 0.2
+        });
+    };
+
+    window.onload = () => {
+        init3D();
+        initAnimations();
+    };
+</script>
+</body>
+</html>
